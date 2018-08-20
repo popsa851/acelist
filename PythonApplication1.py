@@ -13,7 +13,7 @@ locale.getpreferredencoding = getpreferredencoding
 class MyConfigParser(configparser.RawConfigParser):
     def get(self, section, option):
         val = configparser.RawConfigParser.get(self, section, option)
-        return val.strip('"')
+        return val.strip('"').strip('/')
 
 if __name__ == "__main__":
     #config = ConfigParser.RawConfigParser()
@@ -23,7 +23,11 @@ conf.read("config/settings.conf")
 ace_ip = conf.get("settings", "ip")
 ace_port = conf.get("settings", "port")
 pomoyka_url = conf.get("settings","pomoyka_url")
+
 list_path = conf.get("path","list_path")
+fav_path = conf.get("path","fav_path")
+logos_path = conf.get("path","logos_path")
+json_path = conf.get("path","json_path")
 
 #Класс логитопв
 class logos(object):
@@ -41,31 +45,21 @@ class ttv_channel(object):
         self.fname = fname
         self.cid = cid
 
-#Класс списка каналов c логотипами
-class ttv_channel_with_logos(object):
-    """__init__() functions as the class constructor"""
-    def __init__(self, name=None, cat=None, fname=None, cid=None, logo_link=None):
-        self.name = name
-        self.cat = cat
-        self.fname = fname
-        self.cid = cid
-        self.logo_link = logo_link
-
 def printRAW(*Text):
      RAWOut = open(1, 'w', encoding='utf8', closefd=False)
      print(*Text, file=RAWOut)
      RAWOut.flush()
      RAWOut.close()
-#Открываем файл с избранным и читаем в список
+#Appen fav file to list
 try:
-    with codecs.open('config/fav.txt','r',encoding='utf8') as fav:
+    with codecs.open('/'+fav_path+'/fav.txt','r',encoding='utf8') as fav:
         fav_list = fav.read().splitlines()
 except IOError:
     print("File not found")
 
 
 try:
-    with open("logos.json",'r',encoding='utf-8') as read_file:
+    with open('logos.json','r',encoding='utf-8') as read_file:
         logos_json = json.load(read_file)
         
 except IOError:
@@ -97,7 +91,7 @@ for item in data:
         ttv_channel_list.append(ttv_channel(item["name"],item["cat"],item["fname"],item["cid"]))
 print ("------------")
 #Ищем имя канала в списке избранного
-with codecs.open(list_path+'playlist.m3u','w',encoding='utf-8') as acelive:
+with codecs.open('/'+list_path+'/playlist.m3u','w',encoding='utf-8') as acelive:
     acelive.write('#EXTM3U\n')
     for ttv in ttv_channel_list:
         if (any(ttv.name in f for f in fav_list)):
